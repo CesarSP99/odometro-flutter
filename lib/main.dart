@@ -97,10 +97,12 @@ class _HomePageState extends State<HomePage> {
   void _showSendDialog(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
-      builder: (_) => SendDialog(
-        steps: int.parse(_steps),
-        previousContext: ctx,
-      ),
+      builder: (_) {
+        return SendDialog(
+          steps: int.parse(_steps),
+          previousContext: ctx,
+        );
+      },
     );
   }
 
@@ -146,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                     ? TextStyle(fontSize: 30)
                     : TextStyle(fontSize: 20, color: Colors.red),
               ),
-            )
+            ),
           ],
         ),
       ),
