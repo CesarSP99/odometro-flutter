@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:odometro/widgets/send_dialog.dart';
 import 'dart:async';
 import 'package:pedometer/pedometer.dart';
-import './data.dart';
-import 'package:http/http.dart' as http;
 
 String formatDate(DateTime d) {
   return d.toString().substring(0, 19);
@@ -10,12 +9,40 @@ String formatDate(DateTime d) {
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        accentColor: Colors.red,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            primary: Colors.red,
+            onPrimary: Colors.black,
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          textTheme: ThemeData.light().textTheme.copyWith(
+                headline6: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+        ),
+      ),
+      title: "Odometro",
+      home: HomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   Stream<StepCount> _stepCountStream;
   Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?', _steps = '?';
@@ -67,76 +94,67 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
   }
 
+  void _showSendDialog(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx,
+      builder: (_) => SendDialog(
+        steps: int.parse(_steps),
+        previousContext: ctx,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        accentColor: Colors.red,
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            primary: Colors.red,
-            onPrimary: Colors.black,
-          ),
-        ),
-        appBarTheme: AppBarTheme(
-          textTheme: ThemeData.light().textTheme.copyWith(
-                headline6: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Odometro'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Steps taken:',
+              style: TextStyle(fontSize: 30),
+            ),
+            Text(
+              _steps,
+              style: TextStyle(fontSize: 60),
+            ),
+            Divider(
+              height: 100,
+              thickness: 0,
+              color: Colors.white,
+            ),
+            Text(
+              'Pedestrian status:',
+              style: TextStyle(fontSize: 30),
+            ),
+            Icon(
+              _status == 'walking'
+                  ? Icons.directions_walk
+                  : _status == 'stopped'
+                      ? Icons.accessibility_new
+                      : Icons.error,
+              size: 100,
+            ),
+            Center(
+              child: Text(
+                _status,
+                style: _status == 'walking' || _status == 'stopped'
+                    ? TextStyle(fontSize: 30)
+                    : TextStyle(fontSize: 20, color: Colors.red),
               ),
+            )
+          ],
         ),
       ),
-      title: "Odometro",
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Odometro'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'Steps taken:',
-                style: TextStyle(fontSize: 30),
-              ),
-              Text(
-                _steps,
-                style: TextStyle(fontSize: 60),
-              ),
-              Divider(
-                height: 100,
-                thickness: 0,
-                color: Colors.white,
-              ),
-              Text(
-                'Pedestrian status:',
-                style: TextStyle(fontSize: 30),
-              ),
-              Icon(
-                _status == 'walking'
-                    ? Icons.directions_walk
-                    : _status == 'stopped'
-                        ? Icons.accessibility_new
-                        : Icons.error,
-                size: 100,
-              ),
-              Center(
-                child: Text(
-                  _status,
-                  style: _status == 'walking' || _status == 'stopped'
-                      ? TextStyle(fontSize: 30)
-                      : TextStyle(fontSize: 20, color: Colors.red),
-                ),
-              )
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.send_rounded),
-          onPressed: () async {},
-        ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.send_rounded),
+        onPressed: () {
+          _showSendDialog(context);
+        },
       ),
     );
   }
