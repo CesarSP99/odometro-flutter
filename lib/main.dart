@@ -133,7 +133,7 @@ class _MyAppState extends State<MyApp> {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.send_rounded),
-          onPressed: () {},
+          onPressed: () async {},
         ),
       ),
     );
